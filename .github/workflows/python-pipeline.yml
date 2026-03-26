@@ -30,7 +30,7 @@ jobs:
       
     - name: Node build
       working-directory: ./static-web
-      run: npm build dev
+      run: npm run build
 
     - name: CDK install
       run: npm install -g aws-cdk
