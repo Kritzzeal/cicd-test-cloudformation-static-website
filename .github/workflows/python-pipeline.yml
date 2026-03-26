@@ -1,0 +1,52 @@
+# This workflow will do a clean installation of node dependencies, cache/restore them, build the source code and run tests across different versions of node
+# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-nodejs
+
+name: Node.js CI
+
+on:
+  push:
+    branches: [ "dev" ]
+  pull_request:
+    branches: [ "dev" ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [18.x]
+        # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
+
+    steps:
+    - uses: actions/checkout@v4
+
+    
+
+    - name: Node dependencies
+      working-directory: ./static-web
+      run: npm ci
+      
+    - name: Node build
+      working-directory: ./static-web
+      run: npm build dev
+
+    - name: CDK install
+      run: npm install -g aws-cdk
+
+    - name: CDK dependencies install
+      working-directory: ./web
+      run: pip install -r requirements.txt
+    
+    - name: CDK synth
+      working-directory: ./web
+      run: cdk synth
+    
+    - name: CDK deploy
+      working-directory: ./web
+      run: cdk deploy 
+      env:
+        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        AWS_REGION: ${{ secrets.AWS_REGION }}
